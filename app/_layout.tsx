@@ -18,7 +18,7 @@ export default function RootLayout() {
       <ClerkLoaded>
         <SafeAreaProvider>
           <SafeAreaView style={{ flex: 1, backgroundColor: "#000"   }}>
-           <InitialLayout/>
+          <InitialLayout/>
           </SafeAreaView>
         </SafeAreaProvider>
       </ClerkLoaded>

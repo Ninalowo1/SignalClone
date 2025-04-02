@@ -1,5 +1,5 @@
 import { useAuth } from "@clerk/clerk-expo";
-import { FadeSpec } from "@react-navigation/bottom-tabs/lib/typescript/commonjs/src/TransitionConfigs/TransitionSpecs";
+
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect} from "react";
 
