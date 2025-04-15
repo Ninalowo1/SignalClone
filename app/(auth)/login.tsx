@@ -9,27 +9,28 @@ import { useRouter } from 'expo-router'
 import { useAuth } from '@clerk/clerk-expo';
 
 export default function login() {
-    const { isSignedIn } = useAuth();
-const {startSSOFlow} = useSSO()
-const router = useRouter();
+     
 
-const handleGoogleSignIn = async () => {
+    const { isSignedIn } = useAuth();
+    const {startSSOFlow} = useSSO()
+    const router = useRouter();
+    
+    const handleGoogleSignIn = async () => {
+            try {
+            const { createdSessionId, setActive } = await startSSOFlow({ strategy: "oauth_google" });
+    if(setActive && createdSessionId){
+        setActive({session: createdSessionId});
+        router.replace("/(tabs)");
+    }
+          
+        } catch (error) {
+            console.error("OAuth error:", error);
+        }
+    }
+    
     
 
-        try {
-            
 
-
-        const { createdSessionId, setActive } = await startSSOFlow({ strategy: "oauth_google" });
-
-        if (setActive && createdSessionId) {
-            setActive({ session: createdSessionId });
-            router.replace("/(tabs)");
-        }
-    } catch (error) {
-        console.error("OAuth error:", error);
-    }
-}
 
     return (
         <View style={styles.container}>
@@ -37,7 +38,7 @@ const handleGoogleSignIn = async () => {
                 <View style={styles.logoContainer}>
                     <Ionicons name="logo-firebase" size={32} color={COLORS.primary} />
                 </View>
-                <Text style={styles.appName}>SignalClone</Text>
+                <Text style={styles.appName}>Wumi_lol</Text>
                 <Text style={styles.tagline}>don't miss anything</Text>
             </View>
             <View style={styles.illustrationContainer}>
@@ -62,7 +63,7 @@ const handleGoogleSignIn = async () => {
                 <Text style={styles.termsText}>By continuing, you agree to our Terms and Privacy Policy</Text>
             </View>
         </View>
-
+  
 
 
 

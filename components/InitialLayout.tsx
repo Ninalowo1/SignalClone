@@ -22,4 +22,4 @@ useEffect(() => {
 if (!isLoaded)  return null;
 
 return <Stack screenOptions={{headerShown: false}}/>
-}
+} 
