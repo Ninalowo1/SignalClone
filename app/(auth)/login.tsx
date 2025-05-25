@@ -1,8 +1,8 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { styles } from '@/styles/auth.styles'
+import { styles } from '../../src/utils/styles/auth.styles'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS } from '@/constants/theme'
+import { COLORS } from '../../src/components/constants/theme'
 import { useSSO } from '@clerk/clerk-expo'
 import { useRouter } from 'expo-router'
 

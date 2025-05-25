@@ -1,9 +1,4 @@
-import { COLORS } from "@/constants/theme"
-import { styles } from "@/styles/create.styles"
-import { useUser } from "@clerk/clerk-expo"
-import { Ionicons } from "@expo/vector-icons"
-import { useRouter } from "expo-router"
-import { useState } from "react"
+import { useState } from "react";
 import {
   View,
   Text,
@@ -12,62 +7,76 @@ import {
   Platform,
   ActivityIndicator,
   ScrollView,
-  TextInput
-} from "react-native"
-import * as ImagePicker from "expo-image-picker"
-import * as FileSystem from "expo-file-system"
-import { Image } from "expo-image"
-import { useMutation } from "convex/react"
-import { api } from "@/convex/api"
+  TextInput,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+import { Image } from "expo-image";
+import { useUser } from "@clerk/clerk-expo";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useMutation } from "convex/react";
+
+import { api } from "../../convex/_generated/api";
+import { Id } from "../../convex/_generated/dataModel";
+import { COLORS } from "../../src/components/constants/theme";
+import { styles } from "../../src/utils/styles/create.styles";
 
 export default function CreateScreen() {
-  const router = useRouter()
-  const { user } = useUser()
+  const router = useRouter();
+  const { user } = useUser();
   const [caption, setCaption] = useState("");
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isSharing, setIsSharing] = useState(false);
 
+  const generateUploadUrl = useMutation(api.post.generateUploadUrl);
+  const createPost = useMutation(api.post.createPost);
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({ // to launch image libray
-      mediaTypes: "images",
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
     });
 
-    if (!result.canceled) setSelectedImage(result.assets[0].uri)
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    }
   };
 
-  const generateUploadUrl = useMutation(api.posts.generateUploadUrl)
-  const createPost = useMutation(api.posts.createPost)
   const handleShare = async () => {
     if (!selectedImage) return;
+
     try {
       setIsSharing(true);
       const uploadUrl = await generateUploadUrl();
 
-      const uploadResult = await FileSystem.uploadAsync(uploadUrl, //Upload Images
-        selectedImage, {
+      const uploadResult = await FileSystem.uploadAsync(uploadUrl, selectedImage, {
         httpMethod: "POST",
         uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-        mimeType: "imaage/jpeg"
-
+        mimeType: "image/jpeg",
       });
 
-      if (uploadResult.status !== 200) throw new Error("Upload failed")
+      if (uploadResult.status !== 200) {
+        throw new Error("Upload failed");
+      }
 
-      const { storageId } = JSON.parse(uploadResult.body)
-      await createPost({ storageId, caption })
+      const { storageId }: { storageId: Id<"_storage"> } = JSON.parse(uploadResult.body);
+     const postDetails = await createPost({ storageId, caption, imageUrl: selectedImage });
+console.log("Post created with details::", postDetails);
 
-      router.push("/(tabs)")
+setSelectedImage(null);
+setCaption("")
 
+      router.push("/(tabs)");
     } catch (error) {
-      console.log("Error sharing post")
-    } finally { }
-    setIsSharing(false)
-  }
-  {/*select image*/ }
+      console.error("Error sharing post:", error);
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   if (!selectedImage) {
     return (
       <View style={styles.container}>
@@ -75,7 +84,7 @@ export default function CreateScreen() {
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle} >New Pos</Text>
+          <Text style={styles.headerTitle}>New Post</Text>
           <View style={{ width: 28 }} />
         </View>
         <TouchableOpacity style={styles.emptyImageContainer} onPress={pickImage}>
@@ -83,26 +92,28 @@ export default function CreateScreen() {
           <Text style={styles.emptyImageText}>Tap to select an image</Text>
         </TouchableOpacity>
       </View>
-    )
+    );
   }
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}      //proper texting
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
       keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
     >
       <View style={styles.contentContainer}>
-        {/*HEADER*/}
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => {
               setSelectedImage(null);
-              setCaption("")
+              setCaption("");
             }}
             disabled={isSharing}
           >
-            <Ionicons name="close-outline" size={28} color={isSharing ? COLORS.grey : COLORS.white}
+            <Ionicons
+              name="close-outline"
+              size={28}
+              color={isSharing ? COLORS.grey : COLORS.white}
             />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>New Post</Text>
@@ -126,35 +137,34 @@ export default function CreateScreen() {
           contentOffset={{ x: 0, y: 100 }}
         >
           <View style={[styles.content, isSharing && styles.contentDisabled]}>
-            {/*IMAGE SELECTION*/}
-
             <View style={styles.imageSection}>
               <Image
-                source={selectedImage}
+                source={{ uri: selectedImage }}
                 style={styles.previewImage}
                 contentFit="cover"
                 transition={200}
               />
-              <TouchableOpacity style={styles.changeImageButton}
+              <TouchableOpacity
+                style={styles.changeImageButton}
                 onPress={pickImage}
                 disabled={isSharing}
               >
                 <Ionicons name="image-outline" size={20} color={COLORS.white} />
-                <Text style={styles.changeImageText}>Change
-                </Text>
+                <Text style={styles.changeImageText}>Change</Text>
               </TouchableOpacity>
             </View>
-            {/*INOUT SECTION*/}
+
             <View style={styles.inputSection}>
               <View style={styles.captionContainer}>
-                <Image source={user?.imageUrl}
+                <Image
+                  source={{ uri: user?.imageUrl }}
                   style={styles.userAvatar}
                   contentFit="cover"
                   transition={200}
                 />
                 <TextInput
                   style={styles.captionInput}
-                  placeholder="write a caption..."
+                  placeholder="Write a caption..."
                   placeholderTextColor={COLORS.grey}
                   multiline
                   value={caption}
@@ -167,6 +177,5 @@ export default function CreateScreen() {
         </ScrollView>
       </View>
     </KeyboardAvoidingView>
-
   );
 }

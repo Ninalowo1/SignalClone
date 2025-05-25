@@ -1,4 +1,4 @@
-import { COLORS } from "@/constants/theme";
+import { COLORS } from "@/components/constants/theme";
 import { Dimensions, Platform, StyleSheet } from "react-native";
 
 
@@ -93,10 +93,15 @@ postAction:{
 flexDirection:"row",
 alignItems:"center",
 gap:16,
-
+margin:9
+},
+postActionsLeft:{
+flexDirection:"row",
+alignItems:"center",
+gap:16,
 },
 postInfo:{
-    paddingHorizontal:12,
+    paddingHorizontal:6,
 },
 likesText:{
 fontSize:14,
@@ -115,8 +120,14 @@ captionText: {
     color: COLORS.white,
     flex:1,
 },
+
+captionContainer:{
+flexDirection:"row",
+flexWrap:"wrap",
+marginBottom:8,
+},
 commentsText:{
-fontSize:1,
+fontSize:13,
 color: COLORS.grey,
 marginBottom:8,
 },
@@ -138,8 +149,9 @@ modalHeader:{
     alignItems:"center",
     paddingHorizontal:16,
     height:56,
-    borderBottomWidth:0.5,
+    borderBottomWidth:0.1,
     borderBottomColor: COLORS.grey,
+  
 
 },
 modalTitle:{
@@ -148,11 +160,19 @@ modalTitle:{
     fontWeight:"600"
 },
 commentsList:{
-    flexDirection:"row",
+   
     paddingHorizontal:16,
     paddingVertical:12,
     borderBottomColor: COLORS.grey,
 },
+commentContainer:{
+    paddingHorizontal:16,
+    paddingVertical:12,
+    borderBottomWidth:0.5,
+    borderBlockColor: COLORS.background,
+     flexDirection:"row"
+    },
+
 commentAvatar:{
     width: 32,
     height: 32,
@@ -160,12 +180,15 @@ commentAvatar:{
     marginRight:12,
 },
 commentContent:{
-    flex:1,
+      color: COLORS.white,
+     
+    
 },
 commentUsermane:{
     color: COLORS.white,
     fontWeight:"500",
     marginBottom:4,
+    
 },
 commentText:{
 color: COLORS.white,
@@ -185,26 +208,26 @@ alignItems:"center",
 paddingHorizontal:16,
 paddingVertical:21,
 borderTopWidth:0.5,
-borderTopColor: COLORS.grey,
+
 backgroundColor: COLORS.background,
 
 },
 input:{
     flex:1,
-    color: COLORS.white,
+    color: COLORS.grey,
     paddingVertical:8,
     paddingHorizontal:16,
     marginRight:12,
-    backgroundColor: COLORS.grey,
+    backgroundColor: COLORS.surfaceLight,
     borderRadius:20,
     fontSize:14,
 },
-posyButton:{
+postButton:{
     color: COLORS.primary,
     fontWeight:"600",
     fontSize:14,
 },
-postButtonDisabbled:{
+postButtonDisabled:{
     opacity:0.5,
 },
 centered:{

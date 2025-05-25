@@ -1,17 +1,34 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true,
+    "baseUrl": "./",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+      "@/*": ["src/*"], // Mapping for @ to src directory
+      "@/convex/*": ["convex/*"] // Mapping for @/convex to the root convex directory
+    },
+    "jsx": "react-native", // JSX support for React Native
+    "allowJs": true, // Allow JavaScript files in the project
+    "resolveJsonModule": true, // Enable importing JSON files as modules
+    "noEmit": true, // Prevent emitting compiled JavaScript files
+    "isolatedModules": true, // Ensure each file is treated as a separate module
+    "target": "esnext", // Target modern JavaScript features
+    "module": "es2015", // Use ES2015 modules for compatibility
+    "strict": true, // Enable strict type-checking options
+    "esModuleInterop": true, // Allow default imports from CommonJS modules
+    "skipLibCheck": true, // Skip type checking of declaration files
+    "types": [
+      "react",
+      "react-native",
+      "@types/jest",
+      "convex" // Explicitly include Convex types
+    ]
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "convex/_generated/api.d.ts", "convex/_generated/server.d.ts", "convex/_generated/api.js", "convex/_generated/server.js"  ]
+    "src", // Include source directory
+    "app", // Include app directory for Expo Router
+    "index.ts", // Include entry point
+    ".expo/types/**/*.ts", // Include Expo's type definitions
+    "expo-env.d.ts", // Include custom Expo environment types
+    "node_modules" // Include node_modules for type declarations
+  ]
 }

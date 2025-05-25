@@ -6,64 +6,89 @@ import { api } from "./_generated/api";
 const http = httpRouter();
 
 http.route({
-    path:"/clerk-webhook",
-    method:"POST",
-handler: httpAction(async (ctx, request) => {
+  path: "/clerk-webhook",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    console.log("🚀 Clerk webhook hit");
+
     const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
     if (!webhookSecret) {
-        throw new Error("missing ClERK_WEHOOK_ environment variable");
+      console.error("❌ Missing CLERK_WEBHOOK_SECRET");
+      throw new Error("Missing CLERK_WEBHOOK_SECRET environment variable");
     }
-    // check header
+
+    // Verify headers
     const svix_id = request.headers.get("svix-id");
-    const svix_signature = request.headers.get ("svix-signature");
-    const svix_timestamp = request.headers.get("svix-timestamp")
+    const svix_signature = request.headers.get("svix-signature");
+    const svix_timestamp = request.headers.get("svix-timestamp");
 
-if (!svix_id || !svix_signature || !svix_timestamp) {
-    return new Response("Error occured -- no svix headers", {
-    status: 400,    
-    });
-}
-const payload = await request.json();
-const body = JSON.stringify(payload);
+    if (!svix_id || !svix_signature || !svix_timestamp) {
+      console.error("❌ Missing Svix headers");
+      return new Response("Missing Svix headers", { status: 400 });
+    }
 
-const wh = new Webhook(webhookSecret);
-let evt: any;
+    const payload = await request.json();
+    const body = JSON.stringify(payload);
 
-// verify webhook
-try{
+    const wh = new Webhook(webhookSecret);
+    let evt: any;
 
+    // Verify the webhook
+    try {
+      evt = wh.verify(body, {
+        "svix-id": svix_id,
+        "svix-signature": svix_signature,
+        "svix-timestamp": svix_timestamp,
+      });
+      console.log("✅ Webhook verified:", evt.type);
+    } catch (err) {
+      console.error("❌ Error verifying webhook", err);
+      return new Response("Webhook verification failed", { status: 400 });
+    }
 
-}catch (err){
- console.error("Error verifying webhook", err)
- return new Response    ("Error occured", {status:400});
-}
-const eventType = evt.type;
-console.log("Event type:", eventType);
+    // Handle user.created event
+    if (evt.type === "user.created") {
+      const { id, email_addresses, first_name, last_name, image_url, username: clerkUsername } = evt.data;
 
-if (eventType === "user.created") {
-    const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+      if (!email_addresses || email_addresses.length === 0) {
+        console.error("❌ No email addresses found in event data");
+        return new Response("Invalid event data", { status: 400 });
+      }
 
-const email = email_addresses [0].email_address;
-const name = `${first_name || ""} ${last_name || ""}`.trim();
+      const email = email_addresses[0].email_address;
+      const fullName = `${first_name || ""} ${last_name || ""}`.trim();
 
-try{  
-await ctx.runMutation (api.users.createUser, {
-email, 
-fullname: name,
-clerkId: id,
-username: email.split("@")[0],
-image: image_url,
+      // Safe fallback for username
+      const generatedUsername =
+        clerkUsername?.toLowerCase() ||
+        `${first_name || ""}${last_name || ""}`.toLowerCase() ||
+        email?.split("@")[0] ||
+        `user_${id.slice(0, 6)}`;
 
-});
+      console.log("Creating user with:", {
+        email,
+        fullName,
+        clerkId: id,
+        username: generatedUsername,
+      });
 
-}catch (error){ 
-console.log("Error creating user:", error);
-    return new Response("Error creating user", {status: 500})
-}
-}
+      try {
+        await ctx.runMutation(api.users.createUser, {
+          email,
+          fullname: fullName || generatedUsername,
+          clerkId: id,
+          username: generatedUsername,
+          image: image_url,
+        });
+      } catch (error) {
+        console.error("❌ Error creating user:", error);
+        return new Response("Error creating user", { status: 500 });
+      }
+    }
 
-return new Response("wehook processed successfully", { status: 200 });
-    })
+    return new Response("✅ Webhook processed", { status: 200 });
+  }),
 });
 
 export default http;
+

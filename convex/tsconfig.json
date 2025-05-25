@@ -20,6 +20,6 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["./**/*", "posts.ts"],
-  "exclude": ["./_generated"]
+  "include": ["./**/*", "post.ts", "../../convex/_generated", "../../convex/api.ts"],
+  "exclude": ["../../convex/_generated"]
 }

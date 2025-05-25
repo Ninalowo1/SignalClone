@@ -1,4 +1,4 @@
-import {COLORS} from "@/constants/theme"
+import {COLORS} from "@../../src/components/constants/theme"
 import {ActivityIndicator, View} from "react-native"
 
 export function Loader () {

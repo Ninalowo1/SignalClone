@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
-import { styles } from '@/styles/feed.style';
+import { styles } from '@../../src/utils/styles/feed.style';
 
 type Story ={
     id: string;
